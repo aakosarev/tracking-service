@@ -6,25 +6,24 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 )
 
 type Client struct {
 	httpClient *http.Client
-	baseURL    *url.URL
+	baseURL    string
 	apiKey     string
 }
 
-func NewClient(httpClient *http.Client, baseURL *url.URL, apiKey string) *Client {
+func NewClient(httpClient *http.Client, baseURL string, apiKey string) *Client {
 	return &Client{httpClient: httpClient, baseURL: baseURL, apiKey: apiKey}
 }
 
-func (c *Client) doRequest(ctx context.Context, method, endpoint string, in, out interface{}) error {
+func (c *Client) doRequest(ctx context.Context, method, endpoint string, in, out interface{}) (err error) {
 	jsonStr, err := json.Marshal(in)
 	if err != nil {
 		return err
 	}
-	requestUrl := fmt.Sprintf("%s%s", c.baseURL.String(), endpoint)
+	requestUrl := fmt.Sprintf("%s%s", c.baseURL, endpoint)
 
 	req, err := http.NewRequestWithContext(ctx, method, requestUrl, bytes.NewBuffer(jsonStr))
 	if err != nil {
@@ -45,4 +44,14 @@ func (c *Client) doRequest(ctx context.Context, method, endpoint string, in, out
 	}
 
 	return nil
+}
+
+type InputData struct {
+	TrackingNumber string `json:"tracking_number"`
+	CourierCode    string `json:"courier_code"`
+}
+
+func (c *Client) CreateTracker(inputData *InputData) (out interface{}, err error) {
+	err = c.doRequest(context.Background(), http.MethodPost, "/v3/trackings/create", inputData, &out)
+	return
 }
