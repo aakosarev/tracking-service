@@ -19,7 +19,10 @@ func NewClient(httpClient *http.Client, baseURL string, apiKey string) *Client {
 }
 
 func (c *Client) doRequest(ctx context.Context, method, endpoint string, in, out interface{}) (err error) {
-	jsonStr, err := json.Marshal(in)
+	var jsonStr []byte
+	if in != nil {
+		jsonStr, err = json.Marshal(in)
+	}
 	if err != nil {
 		return err
 	}
@@ -51,7 +54,12 @@ type InputData struct {
 	CourierCode    string `json:"courier_code"`
 }
 
-func (c *Client) CreateTracker(inputData *InputData) (out interface{}, err error) {
+func (c *Client) CreateTracking(inputData *InputData) (out interface{}, err error) {
 	err = c.doRequest(context.Background(), http.MethodPost, "/v3/trackings/create", inputData, &out)
+	return
+}
+
+func (c *Client) GetResult(trackingNumber string) (out interface{}, err error) {
+	err = c.doRequest(context.Background(), http.MethodGet, fmt.Sprintf("/v3/trackings/get?tracking_numbers=%s", trackingNumber), nil, &out)
 	return
 }

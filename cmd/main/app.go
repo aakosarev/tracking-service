@@ -15,22 +15,41 @@ func main() {
 	cfg := config.GetConfig()
 	client := tracking_more.NewClient(&http.Client{}, cfg.TrackingMore.BaseUrl, cfg.TrackingMore.ApiKey)
 
-	tracker, err := client.CreateTracker(
+	// Create tracking
+
+	tracker, err := client.CreateTracking(
 		&tracking_more.InputData{
-			TrackingNumber: "1075418304",
-			CourierCode:    "dhl",
+			TrackingNumber: "1Z6R57A00492491127",
+			CourierCode:    "ups",
 		},
 	)
 
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "error creating tracker:", err)
+		fmt.Fprintln(os.Stderr, "Error creating tracking:", err)
 		os.Exit(1)
 		return
 	}
 
 	prettyJSON, err := json.MarshalIndent(tracker, "", "    ")
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "error creating JSON:", err)
+		fmt.Fprintln(os.Stderr, "Error creating JSON:", err)
 	}
 	fmt.Printf("%s\n", string(prettyJSON))
+
+	// Get result
+
+	result, err := client.GetResult("1Z6R57A00492491127")
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error get result:", err)
+		os.Exit(1)
+		return
+	}
+
+	prettyJSON, err = json.MarshalIndent(result, "", "    ")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error creating JSON:", err)
+	}
+	fmt.Printf("%s\n", string(prettyJSON))
+
 }
