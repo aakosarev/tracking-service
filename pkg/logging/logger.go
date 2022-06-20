@@ -21,7 +21,7 @@ func (s *Logger) ExtraFields(fields map[string]interface{}) *Logger {
 var instance Logger
 var once sync.Once
 
-func GetLogger(level string) Logger {
+func GetLogger(level string) *Logger {
 	once.Do(func() {
 		logrusLevel, err := logrus.ParseLevel(level)
 		if err != nil {
@@ -45,5 +45,5 @@ func GetLogger(level string) Logger {
 		instance = Logger{logrus.NewEntry(l)}
 	})
 
-	return instance
+	return &instance
 }

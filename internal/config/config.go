@@ -11,6 +11,10 @@ type Config struct {
 		ApiKey  string `yaml:"api_key"`
 		BaseUrl string `yaml:"base_url"`
 	} `yaml:"tracking_more"`
+
+	AppConfig struct {
+		LogLevel string `yaml:"log_level"`
+	} `yaml:"app_config"`
 }
 
 var instance *Config
