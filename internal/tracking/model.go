@@ -1,18 +1,8 @@
-package tracking_more
+package tracking
 
-type InputDataForCreatingTracking struct {
+type InputData struct {
 	TrackingNumber string `json:"tracking_number"`
 	CourierCode    string `json:"courier_code"`
-}
-
-type CreatingTrackingResult struct {
-	Code int64 `json:"code"`
-	Data struct {
-		CourierCode    string `json:"courier_code"`
-		ID             string `json:"id"`
-		TrackingNumber string `json:"tracking_number"`
-	} `json:"data"`
-	Message string `json:"message"`
 }
 
 type TrackingResult struct {
