@@ -7,7 +7,7 @@ type InputData struct {
 
 type TrackingResult struct {
 	Code int64 `json:"code"`
-	Data []struct {
+	Data struct {
 		ScheduledAddress string `json:"Scheduled_Address"`
 		Archived         bool   `json:"archived"`
 		Consignee        string `json:"consignee"`
@@ -69,6 +69,7 @@ type TrackingResult struct {
 		ScheduledDeliveryDate string `json:"scheduled_delivery_date"`
 		ServiceCode           string `json:"service_code"`
 		ShippingDate          string `json:"shipping_date"`
+		SignSupported         string `json:"sign_supported"`
 		StatusInfo            string `json:"status_info"`
 		StayTime              int64  `json:"stay_time"`
 		Substatus             string `json:"substatus"`
