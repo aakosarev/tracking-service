@@ -11,10 +11,18 @@ type Config struct {
 		ApiKey  string `yaml:"api_key"`
 		BaseUrl string `yaml:"base_url"`
 	} `yaml:"tracking_more"`
-
+	Listen struct {
+		BindIP string `yaml:"bind_ip"`
+		Port   string `yaml:"port"`
+	} `yaml:"listen"`
 	AppConfig struct {
 		LogLevel string `yaml:"log_level"`
 	} `yaml:"app_config"`
+	DynamoDB struct {
+		Region string `yaml:"region"`
+		Host   string `yaml:"host"`
+		Port   string `yaml:"port"`
+	} `yaml:"dynamo"`
 }
 
 var instance *Config

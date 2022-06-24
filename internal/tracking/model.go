@@ -82,3 +82,128 @@ type TrackingResult struct {
 	} `json:"data"`
 	Message string `json:"message"`
 }
+
+type DatabaseData struct {
+	TrackingNumber        string
+	CourierCode           string
+	LastestCheckpointTime string
+	LatestEvent           string
+	Trackinfo             []TrackinfoPoint
+}
+
+type TrackinfoPoint struct {
+	CheckpointDate              string
+	CheckpointDeliveryStatus    string
+	CheckpointDeliverySubstatus string
+	Location                    string
+	TrackingDetail              string
+}
+
+func (tr *TrackingResult) ConvertToDatabaseData() DatabaseData {
+	trackinfo := []TrackinfoPoint{}
+	var checkpointDeliveryStatus string
+	var checkpointDeliverySubstatus string
+	for _, v := range tr.Data.OriginInfo.Trackinfo {
+
+		switch v.CheckpointDeliveryStatus {
+		case "transit":
+			checkpointDeliveryStatus = "TRANSIT : Courier has picked up package from shipper, the package is on the way to destination"
+		case "delivered":
+			checkpointDeliveryStatus = "DELIVERED : The package was delivered successfully"
+		case "pending":
+			checkpointDeliveryStatus = "PENDING : New package added that are pending to track"
+		case "pickup":
+			checkpointDeliveryStatus = "PICKUP : Also known as \"Out For Delivery\", courier is about to deliver the package, or the package is wating for addressee to pick up"
+		case "expired":
+			checkpointDeliveryStatus = "EXPIRED : No tracking information for 30days for express service, or no tracking information for 60 days for postal service since the package added"
+		case "undelivered":
+			checkpointDeliveryStatus = "UNDELIVERED : Also known as \"Failed Attempt\", courier attempted to deliver but failded, usually left a notice and will try to delivery again"
+		case "exception":
+			checkpointDeliveryStatus = "EXCEPTION : Package missed, addressee returned package to sender or other exceptions"
+		case "InfoReceived":
+			checkpointDeliveryStatus = "INFO RECEIVED : Carrier has received request from shipper and is about to pick up the shipment"
+		}
+
+		switch v.CheckpointDeliverySubstatus {
+		case "transit001":
+			checkpointDeliverySubstatus = "TRANSIT 1 : Package is on the way to destination"
+		case "transit002":
+			checkpointDeliverySubstatus = "TRANSIT 2 : Package arrived at a hub or sorting center"
+		case "transit003":
+			checkpointDeliverySubstatus = "TRANSIT 3 : Package arrived at delivery facility"
+		case "transit004":
+			checkpointDeliverySubstatus = "TRANSIT 4 : Package arrived at destination country"
+		case "transit005":
+			checkpointDeliverySubstatus = "TRANSIT 5 : Customs clearance completed"
+		case "transit006":
+			checkpointDeliverySubstatus = "TRANSIT 6 : Item Dispatched"
+		case "transit007":
+			checkpointDeliverySubstatus = "TRANSIT 7 : Depart from Airport"
+
+		case "delivered001":
+			checkpointDeliverySubstatus = "DELIVERED 1 : Package delivered successfully"
+		case "delivered002":
+			checkpointDeliverySubstatus = "DELIVERED 2 : Package picked up by the addressee"
+		case "delivered003":
+			checkpointDeliverySubstatus = "DELIVERED 3 : Package received and signed by addressee"
+		case "delivered004":
+			checkpointDeliverySubstatus = "DELIVERED 4 : Package was left at the front door or left with your neighbour"
+
+		case "undelivered001":
+			checkpointDeliverySubstatus = "UNDELIVERED 1 : Address-related issues"
+		case "undelivered002":
+			checkpointDeliverySubstatus = "UNDELIVERED 2 : Receiver not home"
+		case "undelivered003":
+			checkpointDeliverySubstatus = "UNDELIVERED 3 : Impossible to locate the addressee"
+		case "undelivered004":
+			checkpointDeliverySubstatus = "UNDELIVERED 4 : Undelivered due to other reasons"
+
+		case "pickup001":
+			checkpointDeliverySubstatus = "PICKUP 1 : The package is out for delivery"
+		case "pickup002":
+			checkpointDeliverySubstatus = "PICKUP 2 : The package is ready for collection"
+		case "pickup003":
+			checkpointDeliverySubstatus = "PICKUP 3 : The customer is contacted before the final delivery"
+
+		case "notfound001":
+			checkpointDeliverySubstatus = "NOT FOUND 1 : The package is waiting for courier to pick up"
+		case "notfound002":
+			checkpointDeliverySubstatus = "NOT FOUND 2 : No tracking information found"
+
+		case "exception004":
+			checkpointDeliverySubstatus = "EXCEPTION 4 : The package is unclaimed"
+		case "exception005":
+			checkpointDeliverySubstatus = "EXCEPTION 5 : Other exceptions"
+		case "exception006":
+			checkpointDeliverySubstatus = "EXCEPTION 6 : Package was detained by customs"
+		case "exception007":
+			checkpointDeliverySubstatus = "EXCEPTION 7 : Package was lost or damaged during delivery"
+		case "exception008":
+			checkpointDeliverySubstatus = "EXCEPTION 8 : Logistics order was cancelled before courier pick up the package"
+		case "exception009":
+			checkpointDeliverySubstatus = "EXCEPTION 9 : Package was refused by addressee"
+		case "exception0010":
+			checkpointDeliverySubstatus = "EXCEPTION 10 : Package has been returned to sender"
+		case "exception0011":
+			checkpointDeliverySubstatus = "EXCEPTION 11 : Package is beening sent to sender"
+		}
+
+		trackinfoPoint := TrackinfoPoint{
+			CheckpointDate:              v.CheckpointDate,
+			CheckpointDeliveryStatus:    checkpointDeliveryStatus,
+			CheckpointDeliverySubstatus: checkpointDeliverySubstatus,
+			Location:                    v.Location,
+			TrackingDetail:              v.TrackingDetail,
+		}
+		trackinfo = append(trackinfo, trackinfoPoint)
+	}
+
+	databaseData := DatabaseData{
+		TrackingNumber:        tr.Data.TrackingNumber,
+		CourierCode:           tr.Data.CourierCode,
+		LastestCheckpointTime: tr.Data.LastestCheckpointTime,
+		LatestEvent:           tr.Data.LatestEvent,
+		Trackinfo:             trackinfo,
+	}
+	return databaseData
+}

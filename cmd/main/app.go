@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/aakosarev/tracking-service/internal/config"
 	"github.com/aakosarev/tracking-service/internal/tracking"
+	"github.com/aakosarev/tracking-service/pkg/dynamo"
 	"github.com/aakosarev/tracking-service/pkg/logging"
 	"github.com/julienschmidt/httprouter"
 	"log"
@@ -22,7 +23,13 @@ func main() {
 	logger.Println("Router initializing")
 	router := httprouter.New()
 
-	trackingService := tracking.Service{}
+	dynamoClient, err := dynamo.NewClient(cfg.DynamoDB.Region, cfg.DynamoDB.Host, cfg.DynamoDB.Port)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	trackingStorage := tracking.NewStorage(dynamoClient, logger)
+	trackingService := tracking.NewService(trackingStorage, logger)
 
 	trackingHandler := tracking.Handler{
 		Logger:  logger,
@@ -31,15 +38,15 @@ func main() {
 	trackingHandler.Register(router)
 
 	logger.Println("Start application")
-	start(router)
+	start(router, logger, cfg)
 }
 
-func start(router http.Handler) {
+func start(router http.Handler, logger *logging.Logger, cfg *config.Config) {
 	var server *http.Server
 
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", "127.0.0.1", "1234"))
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", cfg.Listen.BindIP, cfg.Listen.Port))
 	if err != nil {
-		fmt.Println(err)
+		logger.Fatal(err)
 	}
 
 	server = &http.Server{
@@ -49,6 +56,6 @@ func start(router http.Handler) {
 	}
 
 	if err := server.Serve(listener); err != nil {
-		fmt.Println(err)
+		logger.Fatal(err)
 	}
 }

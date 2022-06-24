@@ -26,8 +26,7 @@ func (h *Handler) Track(w http.ResponseWriter, r *http.Request) {
 	courierCode := r.URL.Query().Get("courier_code")
 	if trackingNumber == "" || courierCode == "" {
 		w.WriteHeader(400)
-		w.Write([]byte(`{"message":"Request type error
-						            Please check the API documentation for the request type of this API"}`))
+		w.Write([]byte(`{"message":"Request type error. Please check the API documentation for the request type of this API"}`))
 		return
 	}
 	inputData := InputData{TrackingNumber: trackingNumber, CourierCode: courierCode}
@@ -35,8 +34,7 @@ func (h *Handler) Track(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(500)
 		h.Logger.Debug("1", err)
-		w.Write([]byte(`{"message":"Server error
-									Please contact us: kosarevjob@gmail.com"}`))
+		w.Write([]byte(`{"message":"Server error. Please contact us: kosarevjob@gmail.com"}`))
 		return
 	}
 	cfg := config.GetConfig()
@@ -45,8 +43,7 @@ func (h *Handler) Track(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(500)
 		h.Logger.Debug("2", err)
-		w.Write([]byte(`{"message":"Server error
-									Please contact us: kosarevjob@gmail.com"}`))
+		w.Write([]byte(`{"message":"Server error. Please contact us: kosarevjob@gmail.com"}`))
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -61,23 +58,22 @@ func (h *Handler) Track(w http.ResponseWriter, r *http.Request) {
 	trackingResult := TrackingResult{}
 	if err = json.NewDecoder(resp.Body).Decode(&trackingResult); err != nil {
 		w.WriteHeader(500)
-		h.Logger.Debug("3", err.Error())
-		w.Write([]byte(`{"message":"Server error
-									Please contact us: kosarevjob@gmail.com"}`))
+		w.Write([]byte(`{"message":"Server error. Please contact us: kosarevjob@gmail.com"}`))
 		return
 	}
 
 	status := int(trackingResult.Code)
-	h.Logger.Debug(status)
-
 	if status != http.StatusOK {
 		w.WriteHeader(status)
 		w.Write([]byte(fmt.Sprintf(`{"message":"Message from TrackingMore: %s"}`, trackingResult.Message)))
 		return
 	}
 
-	body, _ := json.Marshal(trackingResult) // TODO: Delete this
-	h.Logger.Debug(string(body))            // TODO: Delete this
+	databaseData := trackingResult.ConvertToDatabaseData()
+	if err = h.Service.Insert(databaseData); err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte(`{"message":"Server error. Please contact us: kosarevjob@gmail.com"}`))
+	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message":"Request response is successful"}`))
