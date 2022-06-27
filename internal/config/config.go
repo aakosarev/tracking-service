@@ -19,9 +19,6 @@ type Config struct {
 		LogLevel string `yaml:"log_level"`
 	} `yaml:"app_config"`
 	DynamoDB struct {
-		Region string `yaml:"region"`
-		Host   string `yaml:"host"`
-		Port   string `yaml:"port"`
 	} `yaml:"dynamo"`
 }
 

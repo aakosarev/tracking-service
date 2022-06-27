@@ -70,9 +70,10 @@ func (h *Handler) Track(w http.ResponseWriter, r *http.Request) {
 	}
 
 	databaseData := trackingResult.ConvertToDatabaseData()
-	if err = h.Service.Insert(databaseData); err != nil {
+	if err = h.Service.CreateOrUpdate(databaseData); err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte(`{"message":"Server error. Please contact us: kosarevjob@gmail.com"}`))
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

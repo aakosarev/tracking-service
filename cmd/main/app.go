@@ -23,7 +23,7 @@ func main() {
 	logger.Println("Router initializing")
 	router := httprouter.New()
 
-	dynamoClient, err := dynamo.NewClient(cfg.DynamoDB.Region, cfg.DynamoDB.Host, cfg.DynamoDB.Port)
+	dynamoClient, err := dynamo.NewClient()
 	if err != nil {
 		logger.Fatal(err)
 	}

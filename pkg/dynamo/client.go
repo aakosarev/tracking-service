@@ -2,18 +2,16 @@ package dynamo
 
 import (
 	"context"
-	"fmt"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"log"
 )
 
-func NewClient(region, host, port string) (*dynamodb.Client, error) {
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
+func NewClient() (*dynamodb.Client, error) {
+	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
-		return nil, fmt.Errorf("unable to load SDK config, %v", err)
+		log.Fatalf("failed to load configuration, %v", err)
 	}
-	svc := dynamodb.NewFromConfig(cfg, func(o *dynamodb.Options) {
-		o.EndpointResolver = dynamodb.EndpointResolverFromURL(fmt.Sprintf("http://%s:%s", host, port))
-	})
-	return svc, nil
+	client := dynamodb.NewFromConfig(cfg)
+	return client, nil
 }

@@ -84,19 +84,19 @@ type TrackingResult struct {
 }
 
 type DatabaseData struct {
-	TrackingNumber        string
-	CourierCode           string
-	LastestCheckpointTime string
-	LatestEvent           string
-	Trackinfo             []TrackinfoPoint
+	TrackingNumber        string           `json:"tracking_number"`
+	CourierCode           string           `json:"courier_code"`
+	LastestCheckpointTime string           `json:"lastest_checkpoint_time"`
+	LatestEvent           string           `json:"latest_event"`
+	Trackinfo             []TrackinfoPoint `json:"trackinfo"`
 }
 
 type TrackinfoPoint struct {
-	CheckpointDate              string
-	CheckpointDeliveryStatus    string
-	CheckpointDeliverySubstatus string
-	Location                    string
-	TrackingDetail              string
+	CheckpointDate              string `json:"checkpoint_date"`
+	CheckpointDeliveryStatus    string `json:"checkpoint_delivery_status"`
+	CheckpointDeliverySubstatus string `json:"checkpoint_delivery_substatus"`
+	Location                    string `json:"location"`
+	TrackingDetail              string `json:"tracking_detail"`
 }
 
 func (tr *TrackingResult) ConvertToDatabaseData() DatabaseData {

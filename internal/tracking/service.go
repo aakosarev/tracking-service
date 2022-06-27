@@ -17,8 +17,8 @@ func NewService(storage Storage, logger *logging.Logger) Service {
 	}
 }
 
-func (s *Service) Insert(databaseData DatabaseData) error {
-	err := s.storage.Insert(databaseData)
+func (s *Service) CreateOrUpdate(databaseData DatabaseData) error {
+	err := s.storage.CreateOrUpdate(databaseData)
 	if err != nil {
 		return fmt.Errorf("failed to insert into the database, %v", err)
 	}
