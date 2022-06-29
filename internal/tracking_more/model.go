@@ -1,4 +1,4 @@
-package tracking
+package tracking_more
 
 type InputData struct {
 	TrackingNumber string `json:"tracking_number"`
@@ -115,7 +115,7 @@ func (tr *TrackingResult) ConvertToDatabaseData() DatabaseData {
 		case "pickup":
 			checkpointDeliveryStatus = "PICKUP : Also known as \"Out For Delivery\", courier is about to deliver the package, or the package is wating for addressee to pick up"
 		case "expired":
-			checkpointDeliveryStatus = "EXPIRED : No tracking information for 30days for express service, or no tracking information for 60 days for postal service since the package added"
+			checkpointDeliveryStatus = "EXPIRED : No tracking_more information for 30days for express service, or no tracking_more information for 60 days for postal service since the package added"
 		case "undelivered":
 			checkpointDeliveryStatus = "UNDELIVERED : Also known as \"Failed Attempt\", courier attempted to deliver but failded, usually left a notice and will try to delivery again"
 		case "exception":
@@ -168,7 +168,7 @@ func (tr *TrackingResult) ConvertToDatabaseData() DatabaseData {
 		case "notfound001":
 			checkpointDeliverySubstatus = "NOT FOUND 1 : The package is waiting for courier to pick up"
 		case "notfound002":
-			checkpointDeliverySubstatus = "NOT FOUND 2 : No tracking information found"
+			checkpointDeliverySubstatus = "NOT FOUND 2 : No tracking_more information found"
 
 		case "exception004":
 			checkpointDeliverySubstatus = "EXCEPTION 4 : The package is unclaimed"

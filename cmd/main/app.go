@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/aakosarev/tracking-service/internal/config"
-	"github.com/aakosarev/tracking-service/internal/tracking"
+	"github.com/aakosarev/tracking-service/internal/parcels_app"
+	"github.com/aakosarev/tracking-service/internal/tracking_more"
 	"github.com/aakosarev/tracking-service/pkg/dynamo"
 	"github.com/aakosarev/tracking-service/pkg/logging"
 	"github.com/julienschmidt/httprouter"
@@ -28,14 +29,15 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	trackingStorage := tracking.NewStorage(dynamoClient, logger)
-	trackingService := tracking.NewService(trackingStorage, logger)
+	trackingMoreStorage := tracking_more.NewStorage(dynamoClient, logger)
+	trackingMoreService := tracking_more.NewService(trackingMoreStorage, logger)
+	trackingMoreHandler := tracking_more.NewHandler(trackingMoreService, logger)
+	trackingMoreHandler.Register(router)
 
-	trackingHandler := tracking.Handler{
-		Logger:  logger,
-		Service: trackingService,
-	}
-	trackingHandler.Register(router)
+	parcelsAppStorage := parcels_app.NewStorage(dynamoClient, logger)
+	parcelsAppService := parcels_app.NewService(parcelsAppStorage, logger)
+	parcelsAppHandler := parcels_app.NewHandler(parcelsAppService, logger)
+	parcelsAppHandler.Register(router)
 
 	logger.Println("Start application")
 	start(router, logger, cfg)

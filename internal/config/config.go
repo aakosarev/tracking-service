@@ -18,8 +18,6 @@ type Config struct {
 	AppConfig struct {
 		LogLevel string `yaml:"log_level"`
 	} `yaml:"app_config"`
-	DynamoDB struct {
-	} `yaml:"dynamo"`
 }
 
 var instance *Config

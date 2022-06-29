@@ -1,4 +1,4 @@
-package tracking
+package tracking_more
 
 import (
 	"context"
@@ -9,19 +9,19 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-type Storage struct {
+type storage struct {
 	client *dynamodb.Client
 	logger *logging.Logger
 }
 
-func NewStorage(client *dynamodb.Client, logger *logging.Logger) Storage {
-	return Storage{
+func NewStorage(client *dynamodb.Client, logger *logging.Logger) *storage {
+	return &storage{
 		client: client,
 		logger: logger,
 	}
 }
 
-func (s *Storage) CreateOrUpdate(databaseData DatabaseData) error {
+func (s *storage) CreateOrUpdate(databaseData DatabaseData) error {
 
 	trackinfo := []types.AttributeValue{}
 
@@ -39,7 +39,7 @@ func (s *Storage) CreateOrUpdate(databaseData DatabaseData) error {
 	}
 
 	_, err := s.client.PutItem(context.TODO(), &dynamodb.PutItemInput{
-		TableName: aws.String("tracking"),
+		TableName: aws.String("tracking_more"),
 		Item: map[string]types.AttributeValue{
 			"tracking_number":         &types.AttributeValueMemberS{Value: databaseData.TrackingNumber},
 			"courier_code":            &types.AttributeValueMemberS{Value: databaseData.CourierCode},
@@ -52,6 +52,5 @@ func (s *Storage) CreateOrUpdate(databaseData DatabaseData) error {
 	if err != nil {
 		return fmt.Errorf("failed to insert into the database, %v", err)
 	}
-
 	return nil
 }

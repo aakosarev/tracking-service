@@ -1,4 +1,4 @@
-package tracking
+package tracking_more
 
 import (
 	"bytes"
@@ -10,17 +10,28 @@ import (
 	"net/http"
 )
 
-type Handler struct {
-	Logger  *logging.Logger
-	Service Service
+type Service interface {
+	CreateOrUpdate(databaseData DatabaseData) error
 }
 
-func (h *Handler) Register(router *httprouter.Router) {
-	router.HandlerFunc(http.MethodPost, "/tracking", h.Track)
+type handler struct {
+	service Service
+	logger  *logging.Logger
 }
 
-func (h *Handler) Track(w http.ResponseWriter, r *http.Request) {
-	h.Logger.Info("Put tracking data in database")
+func NewHandler(service Service, logger *logging.Logger) *handler {
+	return &handler{
+		service: service,
+		logger:  logger,
+	}
+}
+
+func (h *handler) Register(router *httprouter.Router) {
+	router.HandlerFunc(http.MethodPost, "/tracking_more", h.Track)
+}
+
+func (h *handler) Track(w http.ResponseWriter, r *http.Request) {
+	h.logger.Info("Put tracking_more data in database")
 	w.Header().Set("Content-Type", "application/json")
 	trackingNumber := r.URL.Query().Get("tracking_number")
 	courierCode := r.URL.Query().Get("courier_code")
@@ -33,16 +44,16 @@ func (h *Handler) Track(w http.ResponseWriter, r *http.Request) {
 	buf, err := json.Marshal(inputData)
 	if err != nil {
 		w.WriteHeader(500)
-		h.Logger.Debug("1", err)
+		h.logger.Debug("1", err)
 		w.Write([]byte(`{"message":"Server error. Please contact us: kosarevjob@gmail.com"}`))
 		return
 	}
 	cfg := config.GetConfig()
-	reqURL := fmt.Sprintf("%s%s", cfg.TrackingMore.BaseUrl, "/v3/trackings/realtime")
+	reqURL := "https://api.trackingmore.com/v3/trackings/realtime"
 	req, err := http.NewRequest(http.MethodPost, reqURL, bytes.NewBuffer(buf))
 	if err != nil {
 		w.WriteHeader(500)
-		h.Logger.Debug("2", err)
+		h.logger.Debug("2", err)
 		w.Write([]byte(`{"message":"Server error. Please contact us: kosarevjob@gmail.com"}`))
 		return
 	}
@@ -70,7 +81,7 @@ func (h *Handler) Track(w http.ResponseWriter, r *http.Request) {
 	}
 
 	databaseData := trackingResult.ConvertToDatabaseData()
-	if err = h.Service.CreateOrUpdate(databaseData); err != nil {
+	if err = h.service.CreateOrUpdate(databaseData); err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte(`{"message":"Server error. Please contact us: kosarevjob@gmail.com"}`))
 		return

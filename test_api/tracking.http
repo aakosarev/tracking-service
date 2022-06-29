@@ -1,2 +1,0 @@
-POST http://localhost:1234/tracking?tracking_number=1Z099VA90435231801&courier_code=ups
-Content-Type: application/json
