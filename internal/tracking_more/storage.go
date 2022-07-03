@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/aakosarev/tracking-service/pkg/logging"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
@@ -22,9 +23,7 @@ func NewStorage(client *dynamodb.Client, logger *logging.Logger) *storage {
 }
 
 func (s *storage) CreateOrUpdate(databaseData DatabaseData) error {
-
 	trackinfo := []types.AttributeValue{}
-
 	for _, v := range databaseData.Trackinfo {
 		m := &types.AttributeValueMemberM{
 			Value: map[string]types.AttributeValue{
@@ -37,7 +36,6 @@ func (s *storage) CreateOrUpdate(databaseData DatabaseData) error {
 		}
 		trackinfo = append(trackinfo, m)
 	}
-
 	_, err := s.client.PutItem(context.TODO(), &dynamodb.PutItemInput{
 		TableName: aws.String("tracking_more"),
 		Item: map[string]types.AttributeValue{
@@ -48,9 +46,33 @@ func (s *storage) CreateOrUpdate(databaseData DatabaseData) error {
 			"trackinfo":               &types.AttributeValueMemberL{Value: trackinfo},
 		},
 	})
-
 	if err != nil {
-		return fmt.Errorf("failed to insert into the database, %v", err)
+		return fmt.Errorf("failed to insert into the database, %w", err)
 	}
 	return nil
+}
+
+func (s *storage) GetAll() ([]InputData, error) {
+	result, err := s.client.Scan(context.TODO(), &dynamodb.ScanInput{
+		TableName: aws.String("tracking_more"),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get all items from database, %w", err)
+	}
+	inputData := []InputData{}
+	for _, v := range result.Items {
+		var trackNumber, courierCode string
+		if err = attributevalue.Unmarshal(v["tracking_number"], &trackNumber); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal, %w", err)
+		}
+		if err = attributevalue.Unmarshal(v["courier_code"], &courierCode); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal, %w", err)
+		}
+		input := InputData{
+			TrackingNumber: trackNumber,
+			CourierCode:    courierCode,
+		}
+		inputData = append(inputData, input)
+	}
+	return inputData, nil
 }

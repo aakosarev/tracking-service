@@ -8,8 +8,7 @@ import (
 
 type Config struct {
 	TrackingMore struct {
-		ApiKey  string `yaml:"api_key"`
-		BaseUrl string `yaml:"base_url"`
+		ApiKey string `yaml:"api_key"`
 	} `yaml:"tracking_more"`
 	Listen struct {
 		BindIP string `yaml:"bind_ip"`

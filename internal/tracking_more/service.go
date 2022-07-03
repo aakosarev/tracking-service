@@ -1,12 +1,12 @@
 package tracking_more
 
 import (
-	"fmt"
 	"github.com/aakosarev/tracking-service/pkg/logging"
 )
 
 type Storage interface {
 	CreateOrUpdate(databaseData DatabaseData) error
+	GetAll() ([]InputData, error)
 }
 
 type service struct {
@@ -24,7 +24,15 @@ func NewService(storage Storage, logger *logging.Logger) *service {
 func (s *service) CreateOrUpdate(databaseData DatabaseData) error {
 	err := s.storage.CreateOrUpdate(databaseData)
 	if err != nil {
-		return fmt.Errorf("failed to insert into the database, %v", err)
+		return err
 	}
 	return nil
+}
+
+func (s *service) UpdateAll() ([]InputData, error) {
+	inputData, err := s.storage.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	return inputData, nil
 }

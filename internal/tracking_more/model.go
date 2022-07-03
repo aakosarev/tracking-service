@@ -205,5 +205,6 @@ func (tr *TrackingResult) ConvertToDatabaseData() DatabaseData {
 		LatestEvent:           tr.Data.LatestEvent,
 		Trackinfo:             trackinfo,
 	}
+
 	return databaseData
 }

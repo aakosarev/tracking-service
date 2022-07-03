@@ -1,2 +1,7 @@
-POST http://localhost:1234/tracking_more?tracking_number=3385349752&courier_code=dhl
+POST http://localhost:1234/tracking_more?tracking_number=1Z6R57A00495431374&courier_code=ups
+Content-Type: application/json
+
+###
+
+POST http://localhost:1234/update
 Content-Type: application/json
